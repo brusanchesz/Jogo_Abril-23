@@ -1,0 +1,440 @@
+
+ class fase02 extends Phaser.Scene {
+    constructor() {// primeiro método que é executado quando o objeto entra em ação, se referindo a classe super, que é a "pai"
+        super("fase02")
+    }
+
+    //metodo mover as plataformas
+    moverPlataforma(plat) {
+        //testar se a plataforma esta na posição minima 
+        // é uma negação, se é falso, sera verdadeiro, undefined- é indefinido, se colocar 2!!, é a negação da negação
+        if (plat.x < plat.minX || plat.x > plat.maxX) {
+            plat.speed *= -1
+        }
+        plat.x += plat.speed// isso é para aumentar a velocidade em x
+    }
+
+    moverPlataformaVertical(plat) {
+        if (plat.y < plat.minY || plat.y > plat.maxY) {
+            plat.speed *= -1
+        }
+        plat.y += plat.speed
+    }
+    //mover objetos do collider
+    moveObjects(objeto, plataforma) { // move o objeto que esta em contato com a plataforma, acho que esse é para a coletavel tb
+        objeto.x += plataforma.speed
+    }
+
+    moveObjectsY(objeto, plataforma) { //MOVER OBJETO VERTICAL (Y) PRA CIMA 
+        objeto.y += plataforma.speed
+    }
+
+    moverJogador(jogador, plat) { /// EU QUE FIZ AGORA SOZINHA
+        jogador.x += plat.speed
+    }
+//função
+    setPontos() {
+        this.txtPontos.setText(
+            this.pontos > 9 ?   // IF ternário com " ? "  e " : "
+                `SCORE: ${this.pontos}` :
+                `SCORE: 0${this.pontos}`
+        )
+    }
+//função
+    pegaMoedas(jogador, moeda) {
+        this.moedaSom.play()
+        moeda.destroy()
+        this.pontos++
+        this.setPontos()
+    }
+//função
+   dano(jogador, inimigo){//callback recebe como parametro os dois que passa antes
+        this.physics.pause()//tudo para porque ele morreu
+        jogador.setTint("#FF0000")
+        jogador.anims.stop()
+        this.gameOver = true //variavel game over para indicar que o jogo acabou se o jogador morrer
+        this.musica.stop()
+
+    }
+
+
+    create() {
+        //CENARIO
+        this.physics.world.setBounds(0, 0, 5000, 600)
+        this.ceu = this.add.image(0, 0, 'ceu4');// posição é 0, eixo x e y, inicio do jogo no canto que significa na onde meu jogo esta 
+        this.ceu.displayWidth = 2304 //largura da imagem
+        this.ceu.displayHeight = 600 //altura da imagem
+        this.ceu.setOrigin(0, 0);//para descer aumenta o y e subir aumenta o x  
+
+        this.ceu2 = this.add.image(2304, 0, 'ceu5');// posição é 0, eixo x e y, inicio do jogo no canto que significa na onde meu jogo esta 
+        this.ceu2.displayWidth = 2304
+        this.ceu2.displayHeight = 600
+        this.ceu2.setOrigin(0, 0);//para descer aumenta o y e subir aumenta o x 
+
+        this.ceu3 = this.add.image(4608, 0, 'ceu6');// posição é 0, eixo x e y, inicio do jogo no canto que significa na onde meu jogo esta 
+        this.ceu3.displayWidth = 2304
+        this.ceu3.displayHeight = 600
+        this.ceu3.setOrigin(0, 0);//para descer aumenta o y e subir aumenta o x 
+
+        //GRUPO DE COLETÁVEIS
+        this.grupo_m_coletaveis = this.physics.add.group({
+            key: 'moeda',
+            repeat: 60,
+            setXY: {
+                x: 15,
+                y: -50,
+                stepX: 100 // de tanto em tanto ele caiu de cima, pq da fisica
+            }
+            
+        })
+
+        //grupo móvel de plataforma aula 21/03   
+        this.grupo_m_plataforma = this.physics.add.group({
+            allowGravity: false,
+            immovable: true // bloqueia o objeto
+        })
+//móvel 1
+        this.mplataforma = this.grupo_m_plataforma.create(1100, 380, 'm_plataforma') //plataforma móvel horizontal 1
+            .setScale(1, 1)// tamanho plataforma
+            .setOrigin(0, 1)
+            .refreshBody()
+        this.mplataforma.speed = 1//são variaveis, prof criou, não é o phaser que criou, o min e o mx tb
+        this.mplataforma.minX = 1100
+        this.mplataforma.maxX = 1680
+
+//móvel 2
+        this.mplataforma = this.grupo_m_plataforma.create(3450, 580, 'm_plataforma') //plataforma móvel horizontal 1
+        .setScale(1, 1)// tamanho plataforma
+        .setOrigin(0, 1)
+        .refreshBody()
+
+    this.mplataforma.speed = 2.5//são variaveis, prof criou, não é o phaser que criou, o min e o mx tb
+    this.mplataforma.minX = 3420
+    this.mplataforma.maxX = 4490
+
+
+
+        //plataforma móvel vertical 1
+        this.grupo_mv_plataforma = this.physics.add.group({
+            allowGravity: false,
+            immovable: true
+        })
+        this.mvplataforma = this.grupo_mv_plataforma.create(950, 400, 'm_plataforma')
+            .setScale(1, 1)// tamanho plataforma
+            .setOrigin(0, 1)
+            .refreshBody()
+        this.mvplataforma.speed = 1.5// velocidade plataforma
+        this.mvplataforma.minY = 280
+        this.mvplataforma.maxY = 600
+
+  //plataforma móvel vertical 2
+        this.mvplataforma = this.grupo_mv_plataforma.create(2500, 300, 'plataforma_esteira')
+            .setScale(0.3, 0.3)// tamanho plataforma
+            .setOrigin(0, 1)
+            .refreshBody()
+
+        this.mvplataforma.speed = 1// velocidade plataforma
+        this.mvplataforma.minY = 280
+        this.mvplataforma.maxY = 580
+
+
+        // fazer plataforma esteira  
+        this.grupo_esteira = this.physics.add.group({
+            allowGravity: false,
+            immovable: true
+        });
+
+        this.esteira = this.grupo_esteira.create(600, 250, 'plataforma_esteira')
+            .setScale(0.3, 0.3)
+            .setOrigin(0, 1)
+            .refreshBody();
+
+        this.esteira.speed = 3
+        this.esteira.minX = 950
+        this.esteira.maxY = 950
+
+        //static group fixa o elemento na posição escolhida
+        this.grupo_plataforma = this.physics.add.staticGroup()//plataforma
+
+        this.grupo_plataforma.create(0, 600, 'plataforma1')
+            .setScale(1, 1)// tamanho plataforma
+            .setOrigin(0, 1)
+            .refreshBody()
+        //   X e Y a imagem plataforma 
+        this.grupo_plataforma.create(400, 450, 'plataforma2')
+            .setScale(1, 1)
+            .setOrigin(0, 1)
+            .refreshBody()
+
+        this.grupo_plataforma.create(150, 250, 'plataforma3')
+            .setScale (1, 1)
+            .setOrigin (0, 1)
+            .refreshBody()
+
+        this.grupo_plataforma.create(1200, 550, 'plataforma1')
+            .setScale (1, 1)
+            .setOrigin (0, 1)
+            .refreshBody()
+
+            this.grupo_plataforma.create(1200, 200, 'plataforma_esteira')
+            .setScale (0.3, 0.3)
+            .setOrigin (0, 1)
+            .refreshBody()
+
+            this.grupo_plataforma.create(1800, 400, 'plataforma1')
+            .setScale (1, 1)
+            .setOrigin (0, 1)
+            .refreshBody()
+
+            
+            this.grupo_plataforma.create(2100, 200, 'plataforma3')
+            .setScale (1, 1)
+            .setOrigin (0, 1)
+            .refreshBody()
+
+            this.grupo_plataforma.create(2400, 600, 'mv_plataforma')
+            .setScale (1, 1)
+            .setOrigin (0, 1)
+            .refreshBody()
+
+            this.grupo_plataforma.create(2900, 500, 'plataforma1')
+            .setScale (1, 1)
+            .setOrigin (0, 1)
+            .refreshBody()
+
+            this.grupo_plataforma.create(3400, 280, 'plataforma1')
+            .setScale (1, 1)
+            .setOrigin (0, 1)
+            .refreshBody()
+
+            this.grupo_plataforma.create(3000, 180, 'plataforma_esteira')
+            .setScale (0.3, 0.3)
+            .setOrigin (0, 1)
+            .refreshBody()
+
+            this.grupo_plataforma.create(3940, 200, 'mv_plataforma')
+            .setScale (1, 1)
+            .setOrigin (0, 1)
+            .refreshBody()
+
+            this.grupo_plataforma.create(4140, 280, 'mv_plataforma')
+            .setScale (1, 1)
+            .setOrigin (0, 1)
+            .refreshBody()
+
+            this.grupo_plataforma.create(4340, 380, 'mv_plataforma')
+            .setScale (1, 1)
+            .setOrigin (0, 1)
+            .refreshBody()
+
+            this.grupo_plataforma.create(4540, 480, 'mv_plataforma')
+            .setScale (1, 1)
+            .setOrigin (0, 1) 
+            .refreshBody()
+
+            this.grupo_plataforma.create(4675, 580, 'plataforma_esteira')
+            .setScale (0.3, 0.3)
+            .setOrigin (0, 1)
+            .refreshBody()
+
+            this.grupo_plataforma.create(4500, 190, 'plataforma_esteira')
+            .setScale (0.2, 0.2)
+            .setOrigin (0, 1)
+            .refreshBody()
+
+
+
+        //ATRIBUTOS  E CRIAÇÃO DO JOGADOR
+        this.jogador = this.physics.add.sprite(90, 150, 'jogador')
+        this.jogador.setCollideWorldBounds(true)
+            .setScale(1.5)
+            .setBounce(0.3)            //largura e altura
+           //this.jogador.body.setSize (25,32)
+//NÃO DEU CERTO COM O MEU, FICOU BUGADO
+
+            // INIMIGO ---- QUANDO ESTOU COLOCANDO AS COISAS DO INIMIGO ESTA DANDO ERRO
+          this.grupo_inimigos = this.physics.add.group({
+                key: 'inimigo',
+                repeat: 1, //quantidade de inimigos que vai ser num espaço de 450 ?
+                setXY: {
+                    x: Phaser.Math.Between (250,900),//aparecer aleatoriamente
+                    y: 0,
+                    stepX: 500 //- o espaço onde vai aparecer outro inimigo, igual moeda la
+            }
+        })
+        
+        //.setCollideWorldBounds(true)// para nao sair das bordas do mundo
+//QUANDO ATIVO ISSO AI, PIORA TUDO
+
+        .setVelocity(Math.random()>0.5? -200:200, 50) //gera numeros infinitos numeros entre 0 e 1, com if ternário, velocidade com o que o inimigo/objeto vai se mover
+        //velocidade aleatoria, ou ele vai pra esquerda ou vai pra direita
+
+        //Atributos
+        this.jogador.podePular = true;
+
+       
+
+
+        //CONTROLE
+        this.controle = this.input.keyboard.createCursorKeys()  
+
+        //COLISORES DE TUDO
+
+        //COLISÃO JOGADOR PLATAFORMAS
+        this.physics.add.collider(this.jogador, this.grupo_plataforma)//manter sempre o collider sempre pra baixo ou antes do jogador 
+        this.physics.add.collider(this.jogador, this.grupo_m_plataforma, this.moveObjects)
+
+        //this.moveObjectsY //ele que fez o personagem ficar em cima da plataforma em movimento e Y é vertical
+        this.physics.add.collider(this.jogador, this.grupo_mv_plataforma, this.moveObjectsY)// ver coloca coliddder na plataformas móveis
+        this.physics.add.collider(this.jogador, this.grupo_esteira, this.moveObjects)
+        this.physics.add.collider(this.jogador, this.grupo_m_plataforma, this.grupo_m_coletaveis)
+        this.physics.add.overlap (this.jogador, this.grupo_m_coletaveis, this.pegaMoedas, null, this)
+
+        //COLISÃO MOEDAS
+     this.physics.add.collider(this.grupo_m_coletaveis, this.grupo_mv_plataforma, this.moveObjectsY)// ver coloca coliddder na plataformas móveis
+     this.physics.add.collider(this.grupo_m_coletaveis, this.grupo_plataforma)//manter sempre o collider sempre pra baixo ou antes do jogador 
+     this.physics.add.collider(this.grupo_m_coletaveis, this.grupo_m_plataforma, this.moveObjects)
+     this.physics.add.collider(this.grupo_m_coletaveis, this.grupo_esteira, this.moveObjects)
+    
+
+        //COLISÃO INIMIGOS
+      this.physics.add.collider(this.grupo_inimigos, this.grupo_plataforma)
+      this.physics.add.collider(this.grupo_inimigos, this.grupo_m_plataforma, this.moveObjects)
+      this.physics.add.collider(this.grupo_inimigos, this.grupo_mv_plataforma, this.moveObjectsY)
+      this.physics.add.collider(this.grupo_inimigos, this.grupo_esteira, this.moveObjects)
+
+
+        this.physics.add.collider(this.jogador, this.grupo_inimigos, this.dano, null, this)
+
+        //CAMERA
+        this.cameras.main.startFollow(this.jogador)
+        this.cameras.main.setBounds(0, 0, 5000, 400)
+
+        //VARIAVEIS
+        this.velocidade = 0;
+        this.pontos = 0 
+        this.gameOver = false
+
+        this.pontos = 0;
+        this.txtPontos = this.add.text(
+            //pos x, y
+            15, 15,
+            `score: ${this.pontos}`, //texto que aparece. esse crase e para colocar um texto maior e com variaveis no meio do texto, estudar certinho ver como funciona 
+            { fontSize: '32px' } //tamanho fonte // isso do crase vai usar bastante
+
+        ).setShadow(0, 0, '#000', 10)// sombra de fundo
+            .setScrollFactor(0); // o 0 desativa a velocidade do movimento. isso é para efeito paralex
+
+        this.setPontos()
+
+
+//MUSICAS E SONS
+        this.musica = this.sound.add('musica')
+        this.musica.play({
+             volume: .4,
+             loop: true
+            })
+
+        this.pulo = this.sound.add('pulo')
+         ({
+              volume: .6,
+              loop: true
+            })
+
+         this.moedaSom = this.sound.add('moedaSom')
+        ({
+              volume: .3,
+              loop: true
+                })
+
+    }
+
+    //CRIA REGRAS E DINAMICAS DO JOGO
+    update() {
+
+        if (!this.gameOver){
+
+        this.grupo_inimigos.children.iterate(
+            (inimigo)=> {
+                inimigo.setCollideWorldBounds(true)
+                inimigo.setBounce(1)//fica pulando para la e pra ca
+                inimigo.setScale(2)//opcional
+            }
+
+        )
+
+        this.grupo_m_plataforma.children.iterate(///TEM QUE FAZER A PARTE DE COLETAVEIS, PEGA COLETAVEIS, ETC
+            //recebe método
+            (p) => this.moverPlataforma(p)
+        )
+
+        this.grupo_mv_plataforma.children.iterate(///TEM QUE FAZER A PARTE DE COLETAVEIS, PEGA COLETAVEIS, ETC
+            //recebe método
+            (p) => this.moverPlataformaVertical(p)
+        )
+
+        this.grupo_m_coletaveis.children.iterate(// para as moedas
+           (c) => {
+             c.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8))
+                c.anims.play('moeda') //tem que fazer a animação la na onde estão as outras 
+                c.setScale(0.7)//opcional
+            }
+        )
+
+        if (this.controle.left.isDown) {
+            if (this.velocidade > -300) {
+                this.velocidade -= 2
+            }
+            //this.jogador.setVelocityX(this.velocidade)
+            this.jogador.setVelocityX(-250)
+            this.jogador.anims.play('andar', true)
+            this.jogador.flipX = true
+
+        }
+        if (this.controle.right.isDown) {
+            if (this.velocidade < 300) {
+                this.velocidade += 2
+            }
+            //this.jogador.setVelocityX(this.velocidade)
+            this.jogador.setVelocityX(250)
+            this.jogador.anims.play('andar', true)
+            this.jogador.flipX = false
+
+        }
+        if (this.controle.up.isDown &&
+            this.jogador.podePular &&
+            this.jogador.body.touching.down) {
+            this.pulo.play()
+            this.jogador.setVelocityY(-700)
+            this.jogador.podePular = false
+        }
+        if (!this.controle.up.isDown &&
+            !this.jogador.podePular &&
+            this.jogador.body.touching.down) {
+            this.jogador.podePular = true
+        }
+        if (!this.controle.left.isDown &&
+            !this.controle.right.isDown &&
+            this.jogador.body.touching.down) {
+            this.jogador.setVelocityX(0)
+            this.jogador.anims.play('andar', false)
+            this.jogador.setFrame(0) //Volta a posição inicial
+        }
+        //ANIMACAO DO PULO
+        if (!this.jogador.body.touching.down) {
+            this.jogador.setFrame(
+                this.jogador.body.velocity.y < 0 ? 1 : 2
+            )
+        }
+
+
+    }else {
+        this.grupo_m_coletaveis.children.iterate(
+            (moeda)=>{
+                moeda.anims.play.stop()
+            })
+    }//FIM DO IF
+}//FIM DO UPDATE
+
+}//FIM DA CLASS
+

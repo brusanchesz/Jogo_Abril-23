@@ -1,0 +1,107 @@
+   class preload extends Phaser.Scene{
+    constructor(){
+        super('preload')
+    }
+   
+   //tem que carregar tudo antes para conseguir rodar 
+    preload() {
+        this.load.image('start', 'fundo/startt.png');
+        this.load.image('gameover', 'fundo/gameover.png');
+
+        this.load.image('ceu', 'fundo/city1/ceu.png');
+        this.load.image('ceu2', 'fundo/city2/ceu2.png');
+        this.load.image('ceu3', 'fundo/city3/ceu3.png');
+
+        this.load.image('ceu4', 'fundo/city4/ceu4.png');
+        this.load.image('ceu5', 'fundo/city5/ceu5.png');
+        this.load.image('ceu6', 'fundo/city6/ceu6.png');
+
+        this.load.image('plataforma1', 'fundo/Plataforma1.png');
+        this.load.image('plataforma2', 'fundo/Plataforma2.png')
+        this.load.image('plataforma3', 'fundo/Plataforma3.png');
+        this.load.image('m_plataforma', 'fundo/Plataforma4.png');
+        this.load.image('mv_plataforma', 'fundo/Plataforma5.png');
+        this.load.image('plataforma_esteira', 'fundo/PlataformaTerra.png');
+
+        this.load.image('inimigo', 'inimigos/inimigo.png');
+
+        // tamanho da imagem jogador FRAMEWIDTH: TAMANHO DA IMAGEM DIVIDIDO PELA QUANTIDADE DE PERSONAGEM E 
+        //FRAMEHEIGHT: TAMANHO DA ALTURA DA IMAGEM INTEIRA
+
+        this.load.spritesheet('jogador', 'spritesetc/boneco/meninaandando.png',
+            { frameWidth: 82, frameHeight:68 })
+        this.load.spritesheet('jogador_pulando', 'spritesetc/boneco/meninapulando.png',
+            { frameWidth: 82.33, frameHeight: 67 })
+        this.load.spritesheet('jogador_parado', 'spritesetc/boneco/meninaparada.png',
+            { frameWidth: 82.33, frameHeight: 67 })
+        this.load.spritesheet('moeda', 'spritesetc/coletavelflor/moeda.png',
+            { frameWidth: 48, frameHeight: 47 })
+
+        this.load.audio('musica', 'musicas/musica_fundo_1.wav');
+        this.load.audio('pulo', 'musicas/pulo_jogador_1.wav');
+        this.load.audio('moedaSom', 'musicas/coin_1.wav');
+        this.load.audio('gameOver', 'musicas/gameOver_1.wav');
+        this.load.audio('nivelVencido', 'musicas/musica_nivelVencido.wav');
+        this.load.audio('musicaColetavel', 'musicas/coletavel_1.wav');
+
+    }
+    create (){
+         //ANIMAÇÃO DO JOGADOR
+         this.anims.create({
+            key: 'andar',// para ele andar
+            frames: this.anims.generateFrameNumbers('jogador',
+                {
+                    start: 0,
+                    end: 3
+                }),
+
+            frameRate: 6, //movimentação dele andar 
+            repeat: -1 //quantidade de vezes que ele repete, -1 por que ele nunca vai chegar em menos um, nunca vai parar de repetir
+        })
+
+        this.anims.create({
+            key: 'pular',
+            frames: this.anims.generateFrameNumbers('jogador_pulando',
+                {
+                    start: 0,
+                    end: 6
+                }),
+
+            frameRate: 10, //movimentação dele pular 
+            repeat: -1
+            //.setBounce(.4)
+        })
+
+        //set- modifica
+        //get- captura
+        this.anims.create({
+            key: 'parado',// para ele ficar PARADO
+            frames: this.anims.generateFrameNumbers('jogador_parado',
+                {
+                    start: 0,
+                    end: 3
+                }),
+
+            frameRate: 5,
+            repeat: -1
+        })
+
+        //animação da moedas
+       /* this.anims.create({
+            key: 'movimento',
+            frames: this.anims.generateFrameNumbers('moeda',
+                {
+                    start: 0,
+                    end: 4
+                }),
+
+            frameRate: 7,
+            repeat: -1
+        })*/
+
+        //FIM DA ANIMAÇÃO
+
+       this.scene.start("inicio") 
+
+    }
+   }

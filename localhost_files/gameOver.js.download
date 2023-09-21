@@ -1,0 +1,24 @@
+class gameOver extends Phaser.Scene{
+    constructor(){
+        super('gameOver')
+    }
+
+    create(){
+        this.scene.start("fase01")
+        this.add.image(0,0, 'gameover')
+        .setOrigin(0)
+
+        setTimeout(()=>{
+            this.add.text(game.config.width/2, game.config.height/2+40,
+            'GAME OVERR',
+            {fontSize: '32px'})
+            .setOrigin(.5)
+
+            this.input.keyboard.addKey('enter') .on('down', ()=> {this.scene.start('fase01') }) 
+        },500 )//Fim Timeout
+
+    }//Fim do Create
+
+}//Fim class
+
+

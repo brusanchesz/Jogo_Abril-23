@@ -1,0 +1,24 @@
+window.onload = ()=>{  //java script é case sensitive. função onload
+    //objeto de configuração do jogo, aqui também tem POO
+
+    const config = { //aqui é criada uma constante (uma variavel que não varia)
+        type: Phaser.Canvas,// isso é o tipo de renderização que ele ira ter
+        widht:1600,// pixels, px
+        height:600,
+        scene: [preload, inicio, fase01, fase02, gameOver],
+        pixelArt:true,
+
+        physics: {
+            default: 'arcade',
+            arcade:{
+                debug: true,// mostra tudo que tem fisica no jogo, é bom para entender o que esta de errado, se eu quiser tirar é só deixar comentado
+                gravity:{
+                    y: 1000
+                }//fim do gravity
+            }// fim do arcade
+        }//fim do physics
+    }//fim do config
+
+    //Iniciando o jogo com Phaser
+    let Game = new Phaser.Game(config);//nesta linha que inicia-se o jogo
+}
